@@ -1,0 +1,48 @@
+# Multi-Brand Hybrid Home Network Configuration
+network_name: "Daniel's Multi-Brand Homelab"
+management_vlan: 1
+use_mock_driver: false
+dry_run_default: true
+
+protected_ips:
+  - "10.0.1.1"      # Gateway router IP
+  - "10.0.1.2"      # Core managed switch
+  - "10.0.10.105"   # Administrator Workstation
+
+protected_macs:
+  - "00:11:22:33:44:01" # Daniel's Primary MacBook Pro
+
+devices:
+  - id: "sw-core-01"
+    name: "UniFi USW-Pro-24-PoE Switch"
+    vendor: "unifi"
+    ip: "10.0.1.2"
+    port: 443
+    username: "admin"
+    password: "CHANGE_ME"
+    verify_ssl: false
+
+  - id: "rtr-edge-01"
+    name: "MikroTik RB5009 Gateway"
+    vendor: "mikrotik"
+    ip: "10.0.1.1"
+    port: 443
+    username: "admin"
+    password: "CHANGE_ME"
+    verify_ssl: false
+
+  - id: "firewall-sec-01"
+    name: "OPNsense Perimeter Appliance"
+    vendor: "opnsense"
+    ip: "10.0.1.3"
+    port: 8443
+    api_key: "CHANGE_ME_KEY"
+    api_secret: "CHANGE_ME_SECRET"
+    verify_ssl: false
+
+  - id: "pihole-dns-01"
+    name: "Pi-hole DNS Sinkhole"
+    vendor: "pihole"
+    ip: "10.0.1.15"
+    api_token: "CHANGE_ME_TOKEN"
+    verify_ssl: false

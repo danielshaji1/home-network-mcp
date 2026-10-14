@@ -1,0 +1,19 @@
+# Simple Home Network Configuration
+network_name: "Smart Home Network"
+management_vlan: 1
+use_mock_driver: true
+dry_run_default: true
+
+protected_ips:
+  - "192.168.1.1"
+
+protected_macs:
+  - "00:11:22:33:44:01"
+
+devices:
+  - id: "gw-router-01"
+    name: "UniFi Dream Machine Pro"
+    vendor: "unifi"
+    ip: "192.168.1.1"
+    username: "admin"
+    password: "CHANGE_ME"

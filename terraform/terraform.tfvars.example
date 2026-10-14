@@ -1,0 +1,105 @@
+# Example NetWarden Declarative Network Variables
+
+vlans = [
+  {
+    vlan_id         = 1
+    name            = "Default_Management"
+    subnet_cidr     = "10.0.1.0/24"
+    gateway_ip      = "10.0.1.1"
+    dhcp_start      = "10.0.1.50"
+    dhcp_end        = "10.0.1.200"
+    purpose         = "management"
+    isolation_level = "restricted"
+    dns_servers     = ["10.0.1.15", "1.1.1.1"]
+  },
+  {
+    vlan_id         = 10
+    name            = "Trusted_LAN"
+    subnet_cidr     = "10.0.10.0/24"
+    gateway_ip      = "10.0.10.1"
+    dhcp_start      = "10.0.10.100"
+    dhcp_end        = "10.0.10.250"
+    purpose         = "trusted_lan"
+    isolation_level = "routed"
+    dns_servers     = ["10.0.1.15", "1.1.1.1"]
+  },
+  {
+    vlan_id         = 30
+    name            = "IoT_SmartHome"
+    subnet_cidr     = "10.0.30.0/24"
+    gateway_ip      = "10.0.30.1"
+    dhcp_start      = "10.0.30.50"
+    dhcp_end        = "10.0.30.250"
+    purpose         = "iot"
+    isolation_level = "internet_only"
+    dns_servers     = ["10.0.1.15", "1.1.1.1"]
+  },
+  {
+    vlan_id         = 50
+    name            = "Guest_Network"
+    subnet_cidr     = "10.0.50.0/24"
+    gateway_ip      = "10.0.50.1"
+    dhcp_start      = "10.0.50.50"
+    dhcp_end        = "10.0.50.250"
+    purpose         = "guest"
+    isolation_level = "internet_only"
+    dns_servers     = ["1.1.1.1"]
+  },
+  {
+    vlan_id         = 99
+    name            = "Quarantine_Jail"
+    subnet_cidr     = "10.0.99.0/24"
+    gateway_ip      = "10.0.99.1"
+    dhcp_start      = "10.0.99.50"
+    dhcp_end        = "10.0.99.99"
+    purpose         = "quarantine"
+    isolation_level = "isolated"
+    dns_servers     = []
+  }
+]
+
+allowed_devices = [
+  {
+    mac              = "00:11:22:33:44:01"
+    hostname         = "Daniels-MacBook-Pro"
+    ip               = "10.0.10.105"
+    vlan_id          = 10
+    category         = "Workstation"
+    dhcp_reservation = true
+    switch_port      = 1
+  },
+  {
+    mac              = "b8:27:eb:aa:bb:cc"
+    hostname         = "pi-hole-dns"
+    ip               = "10.0.1.15"
+    vlan_id          = 1
+    category         = "Server"
+    dhcp_reservation = true
+    switch_port      = 4
+  }
+]
+
+firewall_rules = [
+  {
+    id          = "rule-100"
+    name        = "Allow Established & Related"
+    action      = "accept"
+    direction   = "forward"
+    protocol    = "any"
+    dest_ports  = []
+    enabled     = true
+    logging     = false
+  },
+  {
+    id          = "rule-200"
+    name        = "Isolate IoT from Private LAN"
+    action      = "drop"
+    direction   = "forward"
+    source_vlan = 30
+    dest_vlan   = 10
+    protocol    = "any"
+    dest_ports  = []
+    enabled     = true
+    logging     = true
+  }
+]
