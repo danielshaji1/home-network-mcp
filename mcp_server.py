@@ -6,7 +6,16 @@ Usage:
     python mcp_server.py --transport sse --port 8000 # Runs over SSE for remote / containerized agents
 """
 
+import os
 import sys
+from pathlib import Path
+
+# Anchor working directory to project root regardless of who spawns the process
+PROJECT_ROOT = Path(__file__).resolve().parent
+os.chdir(PROJECT_ROOT)
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 import argparse
 from netwarden.server import app
 

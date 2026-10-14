@@ -15,11 +15,18 @@ from netwarden.core.models import (
 )
 
 
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+
+
 class NetworkInventory:
     """Network inventory with fast indexing by IP, MAC, ID, and VLAN, plus disk persistence."""
 
-    def __init__(self, persistence_file: str = ".netwarden_state.json"):
-        self.persistence_file = Path(persistence_file)
+    def __init__(self, persistence_file: Optional[str] = None):
+        if persistence_file:
+            p = Path(persistence_file)
+            self.persistence_file = p if p.is_absolute() else (PROJECT_ROOT / p)
+        else:
+            self.persistence_file = PROJECT_ROOT / ".netwarden_state.json"
         self.devices: Dict[str, NetworkDevice] = {}
         self.clients: Dict[str, ConnectedClient] = {}  # Keyed by MAC address
         self.vlans: Dict[int, VLANDefinition] = {}     # Keyed by VLAN ID

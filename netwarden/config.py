@@ -1,6 +1,6 @@
 """
 NetWarden Configuration Loader and Settings.
-Supports YAML file configuration and environment variables.
+Supports YAML file configuration and environment variables with robust absolute path resolution.
 """
 
 from typing import Dict, List, Optional, Any
@@ -9,6 +9,8 @@ import os
 import yaml
 from pydantic import BaseModel, Field
 from netwarden.core.models import VendorType
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 
 class DeviceConfig(BaseModel):
@@ -32,7 +34,7 @@ class NetWardenSettings(BaseModel):
     )
     protected_macs: List[str] = Field(default_factory=list)
     devices: List[DeviceConfig] = Field(default_factory=list)
-    terraform_working_dir: str = "./terraform"
+    terraform_working_dir: str = str(PROJECT_ROOT / "terraform")
     use_mock_driver: bool = True
     dry_run_default: bool = True
 
@@ -44,14 +46,16 @@ def load_config(config_path: Optional[str] = None) -> NetWardenSettings:
         target_path = Path(config_path)
     elif os.environ.get("NETWARDEN_CONFIG"):
         target_path = Path(os.environ["NETWARDEN_CONFIG"])
-    elif Path("netwarden.yaml").exists():
-        target_path = Path("netwarden.yaml")
-    elif Path("examples/multi_brand_hybrid.yaml").exists():
-        target_path = Path("examples/multi_brand_hybrid.yaml")
+    elif (PROJECT_ROOT / "netwarden.yaml").exists():
+        target_path = PROJECT_ROOT / "netwarden.yaml"
+    elif (PROJECT_ROOT / "examples/multi_brand_hybrid.yaml").exists():
+        target_path = PROJECT_ROOT / "examples/multi_brand_hybrid.yaml"
 
     if target_path and target_path.exists():
         with open(target_path, "r", encoding="utf-8") as f:
             raw = yaml.safe_load(f) or {}
+            if "terraform_working_dir" in raw and not Path(raw["terraform_working_dir"]).is_absolute():
+                raw["terraform_working_dir"] = str(PROJECT_ROOT / raw["terraform_working_dir"])
             return NetWardenSettings(**raw)
 
     return NetWardenSettings()
