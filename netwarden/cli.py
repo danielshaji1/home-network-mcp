@@ -235,7 +235,33 @@ def terraform_apply():
     snap_id = ctx.state_manager.create_snapshot("CLI Apply Snapshot", snapshot_state)
     res = ctx.runner.apply(auto_approve=True)
     console.print(f"[bold green]✓ Applied Successfully![/bold green] Snapshot: [yellow]{snap_id}[/yellow]")
-    console.print(json.dumps(res, indent=2))
+@cli.command("scan")
+def scan_live_lan():
+    """Scan real physical local subnet and discover live active devices."""
+    from netwarden.core.scanner import scan_live_network_environment
+    res = scan_live_network_environment(ctx.inventory)
+    console.print(Panel(
+        f"Gateway: [bold green]{res.get('gateway_ip')}[/bold green] ({res.get('gateway_vendor')}) | "
+        f"Interface: [cyan]{res.get('interface')}[/cyan] | Host IP: [yellow]{res.get('host_ip')}[/yellow] | "
+        f"Discovered: [bold magenta]{res.get('devices_found_count')}[/bold magenta] live devices",
+        title="Physical LAN Discovery Scan",
+        border_style="green",
+    ))
+    table = Table(title="Discovered Physical Network Devices", border_style="cyan")
+    table.add_column("IP Address", style="yellow")
+    table.add_column("MAC Address", style="bold cyan")
+    table.add_column("Vendor / Hardware OUI", style="green")
+    table.add_column("Hostname", style="bold white")
+    table.add_column("Role / Type")
+
+    if res.get("gateway"):
+        gw = res["gateway"]
+        table.add_row(gw["ip_address"], gw["mac_address"], res.get("gateway_vendor", "Gateway"), gw["name"], "[bold green]GATEWAY[/bold green]")
+
+    for c in res.get("clients", []):
+        table.add_row(c["ip_address"] or "Dynamic", c["mac_address"], c["vendor_oui"] or "Unknown", c["hostname"] or "Unknown", c["device_category"])
+
+    console.print(table)
 
 
 def main():

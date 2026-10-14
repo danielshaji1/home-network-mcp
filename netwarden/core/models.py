@@ -18,6 +18,7 @@ class VendorType(str, Enum):
     CISCO = "cisco"
     PIHOLE = "pihole"
     MOCK = "mock"
+    GENERIC = "generic"
 
 
 class DeviceType(str, Enum):

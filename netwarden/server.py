@@ -123,9 +123,23 @@ class NetWardenContext:
 ctx = NetWardenContext()
 
 
+from netwarden.core.scanner import scan_live_network_environment
+
+
 # ==========================================
 # MCP TOOLS: Network Discovery & Topology
 # ==========================================
+
+@app.tool()
+def scan_live_network() -> str:
+    """
+    Actively scan the local physical network subnet, detect the default gateway,
+    discover active devices from the ARP cache and routing table, resolve hostnames,
+    fingerprint hardware vendors (Apple, Tuya, Espressif, Arris, etc.), and sync them into inventory.
+    """
+    res = scan_live_network_environment(ctx.inventory)
+    return json.dumps(res, indent=2, default=str)
+
 
 @app.tool()
 def get_network_topology() -> str:
